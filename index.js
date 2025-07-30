@@ -47,6 +47,15 @@ async function getOpenAIResponse(prompt) {
     return data.choices?.[0]?.message?.content || 'Maaf, terjadi kesalahan saat memproses jawaban.';
 }
 
+app.get('/', (req, res) => {
+    res.status(200).send(`
+        <div style="font-family: sans-serif; text-align: center; padding: 40px;">
+            <h1 style="color: #2c3e50;">VERSION 1.0.0</h1>
+            <p style="color: #34495e; font-size: 1.2em;">Service is up and running..</p>
+        </div>
+    `);
+});
+
 app.post('/ask', apiKeyAuth, async (req, res) => {
   const { prompt } = req.body;
 
