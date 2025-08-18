@@ -22,6 +22,16 @@ const apiKeyAuth = (req, res, next) => {
     }
 };
 
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return hash.toString(36);
+}
+
 async function getOpenAIResponse(prompt) {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
