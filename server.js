@@ -22,16 +22,6 @@ const apiKeyAuth = (req, res, next) => {
     }
 };
 
-function hashString(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
-  }
-  return hash.toString(36);
-}
-
 async function getOpenAIResponse(prompt) {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -105,12 +95,10 @@ app.post('/neuroner', apiKeyAuth, async (req, res) => {
   }
 
   try {
-    const cacheKey = `neuron-${hashString(prompt)}`;
-    const cachedAnswer = responseCache.get(cacheKey);
-    
+    const cachedAnswer = responseCache.get(prompt);
     if (cachedAnswer) {
-      console.log('[NEURONER] Serving from cache...');
-      return res.json({ answer: cachedAnswer });
+        console.log('Serving from cache...');
+        return res.json({ answer: cachedAnswer });
     }
 
     const answer = await getOpenAIResponse({
@@ -119,7 +107,7 @@ app.post('/neuroner', apiKeyAuth, async (req, res) => {
       max_tokens: 2000,
       temperature: 0.4
     });
-    responseCache.set(cacheKey, answer);
+    responseCache.set(prompt, answer);
     res.json({ answer });
   } catch (err) {
     console.error('[Service NEURONER ERROR]', err);
