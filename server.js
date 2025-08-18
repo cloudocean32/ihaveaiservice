@@ -100,13 +100,7 @@ app.post('/neuroner', apiKeyAuth, async (req, res) => {
         console.log('Serving from cache...');
         return res.json({ answer: cachedAnswer });
     }
-
-    const answer = await getOpenAIResponse({
-      prompt: prompt,
-      model: 'gpt-3.5-turbo',
-      max_tokens: 2000,
-      temperature: 0.4
-    });
+    const answer = await getOpenAIResponse(prompt);
     responseCache.set(prompt, answer);
     res.json({ answer });
   } catch (err) {
