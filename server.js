@@ -84,5 +84,40 @@ app.post('/ask', apiKeyAuth, async (req, res) => {
   }
 });
 
+app.post('/neuroner', apiKeyAuth, async (req, res) => {
+  const { prompt } = req.body;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+  if (prompt.length > 10000) {
+    return res.status(400).json({ error: 'Prompt is too long. Maximum 10,000 characters allowed.' });
+  }
+
+  try {
+    const cacheKey = `neuron-${hashString(prompt)}`;
+    const cachedAnswer = responseCache.get(cacheKey);
+    
+    if (cachedAnswer) {
+      console.log('[NEURONER] Serving from cache...');
+      return res.json({ answer: cachedAnswer });
+    }
+
+    const answer = await getOpenAIResponse({
+      prompt: prompt,
+      model: 'gpt-3.5-turbo',
+      max_tokens: 2000,
+      temperature: 0.4
+    });
+    responseCache.set(cacheKey, answer);
+    res.json({ answer });
+  } catch (err) {
+    console.error('[Service NEURONER ERROR]', err);
+    res.status(500).json({ 
+      error: err.message || 'Failed to process neuroner request' 
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`AI Responder API listening on port ${PORT}`));
