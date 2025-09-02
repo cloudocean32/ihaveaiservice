@@ -62,7 +62,7 @@ app.post('/ask', apiKeyAuth, async (req, res) => {
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
-  if (prompt.length > 2000) {
+  if (prompt.length > 5000) {
     return res.status(400).json({ error: 'Prompt is too long.' });
   }
 
